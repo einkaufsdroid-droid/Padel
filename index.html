@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -6,76 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Padel & Tennis Zähler</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #121212;
             color: white;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .container {
-            max-width: 800px;
+            width: 100%;
+            max-width: 1000px;
             margin: 0 auto;
             position: relative;
-            padding-bottom: 80px;
+            padding-bottom: 60px;
         }
         .card {
             background-color: #1e1e1e;
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
         input, select, button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 6px;
-            border: none;
+            padding: 12px;
+            margin: 6px;
+            border-radius: 8px;
+            border: 1px solid #333;
             font-size: 16px;
+            background-color: #2a2a2a;
+            color: white;
         }
+        input::placeholder { color: #888; }
         button {
             background-color: #ffcc00;
             color: black;
             font-weight: bold;
             cursor: pointer;
+            border: none;
+            transition: transform 0.1s;
         }
-        button:hover { background-color: #e6b800; }
+        button:active { transform: scale(0.98); }
+        
+        /* Scoreboard Layout */
         .score-board {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 15px;
         }
-        .team { width: 45%; }
+        .team {
+            width: 50%;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        /* Team Farben */
+        .team-1 {
+            background-color: rgba(13, 71, 161, 0.3);
+            border: 2px solid #2196F3;
+        }
+        .team-2 {
+            background-color: rgba(183, 28, 28, 0.3);
+            border: 2px solid #F44336;
+        }
+        
         .score {
-            font-size: 64px;
+            font-size: clamp(48px, 12vw, 96px);
             font-weight: bold;
-            color: #ffcc00;
-            margin: 10px 0;
+            margin: 5px 0;
         }
+        .team-1 .score { color: #64B5F6; }
+        .team-2 .score { color: #EF5350; }
+
+        .game-info {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+
         .ball {
             display: inline-block;
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             background-color: #ccff00;
             border-radius: 50%;
             margin: 2px;
             box-shadow: 0 0 5px #ccff00;
         }
+        
         #voice-btn {
-            background-color: #00cc66;
+            background-color: #4CAF50;
             color: white;
-            padding: 12px 20px;
+            padding: 14px 24px;
             font-size: 18px;
+            width: 100%;
+            max-width: 400px;
         }
         #reset-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #ff3333;
+            bottom: 15px;
+            right: 15px;
+            background-color: #d32f2f;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
+            font-size: 14px;
+            z-index: 100;
+        }
+
+        @media (max-width: 600px) {
+            .score-board { flex-direction: column; }
+            .team { width: 100%; }
         }
     </style>
 </head>
@@ -87,51 +133,63 @@
     <!-- Setup Formular -->
     <div id="setup" class="card">
         <h2>Spiel-Einstellungen</h2>
-        <div>
-            <h3>Team 1</h3>
-            <input type="text" id="t1-name" value="Team 1"><br>
+        
+        <div style="border-left: 4px solid #2196F3; padding-left: 10px; margin-bottom: 15px;">
+            <h3 style="color: #64B5F6;">Team 1 (Blau)</h3>
+            <input type="text" id="t1-name" placeholder="Teamname (Standard: Team 1)"><br>
             <input type="text" id="t1-p1" placeholder="Spieler 1">
             <input type="text" id="t1-p2" placeholder="Spieler 2">
         </div>
-        <hr style="border-color: #333; margin: 15px 0;">
-        <div>
-            <h3>Team 2</h3>
-            <input type="text" id="t2-name" value="Team 2"><br>
+
+        <div style="border-left: 4px solid #F44336; padding-left: 10px; margin-bottom: 15px;">
+            <h3 style="color: #EF5350;">Team 2 (Rot)</h3>
+            <input type="text" id="t2-name" placeholder="Teamname (Standard: Team 2)"><br>
             <input type="text" id="t2-p1" placeholder="Spieler 1">
             <input type="text" id="t2-p2" placeholder="Spieler 2">
         </div>
+
         <hr style="border-color: #333; margin: 15px 0;">
-        <label for="sets-select">Anzahl Gewinnsätze: </label>
+        <label for="sets-select">Gewinnsätze: </label>
         <select id="sets-select">
             <option value="1">1 Gewinnsatz</option>
             <option value="2" selected>Best of 3 (2 Gewinnsätze)</option>
             <option value="3">Best of 5 (3 Gewinnsätze)</option>
         </select><br><br>
-        <button onclick="startGame()">Spiel starten</button>
+        <button onclick="startGame()" style="font-size: 18px; width: 80%;">Spiel starten</button>
     </div>
 
     <!-- Live Scoreboard -->
     <div id="scoreboard" class="card" style="display: none;">
         <button id="voice-btn" onclick="toggleVoice()">🎤 Sprachsteuerung starten</button>
-        <p id="voice-status" style="font-size: 12px; color: #888;">Befehle: "Team 1 Punkt", "Team 2 Punkt", "Team 1 minus Punkt", "Team 2 minus Punkt"</p>
+        <p id="voice-status" style="font-size: 13px; color: #aaa; margin-top: 8px;">
+            Befehle: "Team 1 / Team 2 Punkt", "Eins / Zwei Punkt", "Minus Punkt Team 1"
+        </p>
         
         <div class="score-board">
-            <div class="team">
+            <!-- Team 1 -->
+            <div class="team team-1">
                 <h2 id="disp-t1-name">Team 1</h2>
-                <p id="disp-t1-players" style="color: #aaa; font-size: 14px;"></p>
+                <p id="disp-t1-players" style="color: #bbb; font-size: 14px;"></p>
                 <div id="score1" class="score">0</div>
-                <div>Spiele im Satz: <span id="games1">0</span></div>
-                <div>Gewonnene Sätze: <span id="sets1">0</span></div>
+                <div class="game-info">Spiele: <b id="games1">0</b></div>
+                <div class="game-info">Sätze: <b id="sets1">0</b></div>
                 <div id="balls1" style="margin-top: 10px;"></div>
+                <br>
+                <button onclick="addPoint(1)" style="background-color: #2196F3; color: white;">+ Punkt</button>
+                <button onclick="removePoint(1)" style="background-color: #444; color: white;">- Punkt</button>
             </div>
             
-            <div class="team">
+            <!-- Team 2 -->
+            <div class="team team-2">
                 <h2 id="disp-t2-name">Team 2</h2>
-                <p id="disp-t2-players" style="color: #aaa; font-size: 14px;"></p>
+                <p id="disp-t2-players" style="color: #bbb; font-size: 14px;"></p>
                 <div id="score2" class="score">0</div>
-                <div>Spiele im Satz: <span id="games2">0</span></div>
-                <div>Gewonnene Sätze: <span id="sets2">0</span></div>
+                <div class="game-info">Spiele: <b id="games2">0</b></div>
+                <div class="game-info">Sätze: <b id="sets2">0</b></div>
                 <div id="balls2" style="margin-top: 10px;"></div>
+                <br>
+                <button onclick="addPoint(2)" style="background-color: #F44336; color: white;">+ Punkt</button>
+                <button onclick="removePoint(2)" style="background-color: #444; color: white;">- Punkt</button>
             </div>
         </div>
     </div>
@@ -139,22 +197,22 @@
     <!-- Match Statistik -->
     <div id="stats" class="card" style="display: none;">
         <h2>Match Beendet!</h2>
-        <h3 id="winner-text" style="color: #ffcc00;"></h3>
+        <h1 id="winner-text" style="color: #ffcc00;"></h1>
         <hr style="border-color: #333;">
         <h3>Endstatistik</h3>
-        <p id="stat-sets"></p>
-        <p id="stat-games"></p>
+        <p id="stat-sets" style="font-size: 18px;"></p>
+        <p id="stat-games" style="font-size: 16px; color: #aaa;"></p>
     </div>
 </div>
 
-<button id="reset-btn" onclick="resetGame()">Reset</button>
+<button id="reset-btn" onclick="resetGame()">Komplett Reset</button>
 
 <script>
     let state = {
         t1Name: "Team 1", t2Name: "Team 2",
         t1Players: "", t2Players: "",
         targetSets: 2,
-        p1: 0, p2: 0, // 0=0, 1=15, 2=30, 3=40, 4=Vorteil
+        p1: 0, p2: 0, 
         games1: 0, games2: 0,
         sets1: 0, sets2: 0,
         totalGames1: 0, totalGames2: 0,
@@ -167,15 +225,15 @@
     let isListening = false;
 
     function startGame() {
-        state.t1Name = document.getElementById('t1-name').value || "Team 1";
-        state.t2Name = document.getElementById('t2-name').value || "Team 2";
+        state.t1Name = document.getElementById('t1-name').value.trim() || "Team 1";
+        state.t2Name = document.getElementById('t2-name').value.trim() || "Team 2";
         
-        let p1_1 = document.getElementById('t1-p1').value;
-        let p1_2 = document.getElementById('t1-p2').value;
+        let p1_1 = document.getElementById('t1-p1').value.trim();
+        let p1_2 = document.getElementById('t1-p2').value.trim();
         state.t1Players = [p1_1, p1_2].filter(Boolean).join(" & ");
 
-        let p2_1 = document.getElementById('t2-p1').value;
-        let p2_2 = document.getElementById('t2-p2').value;
+        let p2_1 = document.getElementById('t2-p1').value.trim();
+        let p2_2 = document.getElementById('t2-p2').value.trim();
         state.t2Players = [p2_1, p2_2].filter(Boolean).join(" & ");
 
         state.targetSets = parseInt(document.getElementById('sets-select').value);
@@ -197,13 +255,13 @@
         saveState();
 
         if (team === 1) {
-            if (state.p1 === 3 && state.p2 === 3) state.p1 = 4; // Vorteil T1
-            else if (state.p1 === 3 && state.p2 === 4) state.p2 = 3; // Gleichstand
+            if (state.p1 === 3 && state.p2 === 3) state.p1 = 4;
+            else if (state.p1 === 3 && state.p2 === 4) state.p2 = 3;
             else if (state.p1 === 4 || (state.p1 === 3 && state.p2 < 3)) winGame(1);
             else state.p1++;
         } else {
-            if (state.p1 === 3 && state.p2 === 3) state.p2 = 4; // Vorteil T2
-            else if (state.p2 === 3 && state.p1 === 4) state.p1 = 3; // Gleichstand
+            if (state.p1 === 3 && state.p2 === 3) state.p2 = 4;
+            else if (state.p2 === 3 && state.p1 === 4) state.p1 = 3;
             else if (state.p2 === 4 || (state.p2 === 3 && state.p1 < 3)) winGame(2);
             else state.p2++;
         }
@@ -213,16 +271,7 @@
     function removePoint(team) {
         if (state.history.length > 0) {
             let lastState = state.history.pop();
-            // Nur Punktezustand wiederherstellen
-            state.p1 = lastState.p1;
-            state.p2 = lastState.p2;
-            state.games1 = lastState.games1;
-            state.games2 = lastState.games2;
-            state.sets1 = lastState.sets1;
-            state.sets2 = lastState.sets2;
-            state.totalGames1 = lastState.totalGames1;
-            state.totalGames2 = lastState.totalGames2;
-            state.gameOver = false;
+            Object.assign(state, lastState);
             document.getElementById('stats').style.display = 'none';
             updateDisplay();
         }
@@ -239,7 +288,6 @@
             state.totalGames2++;
         }
 
-        // Satz-Logik (mind. 6 Spiele & 2 Spiele Vorsprung)
         if (state.games1 >= 6 && state.games1 - state.games2 >= 2) {
             state.sets1++;
             state.games1 = 0;
@@ -250,7 +298,6 @@
             state.games2 = 0;
         }
 
-        // Match-Logik
         if (state.sets1 === state.targetSets || state.sets2 === state.targetSets) {
             state.gameOver = true;
             showStats();
@@ -262,21 +309,13 @@
     }
 
     function updateDisplay() {
-        // Punkte Anzeige
-        if (state.p1 === 3 && state.p2 === 3) {
-            document.getElementById('score1').innerText = "40";
-            document.getElementById('score2').innerText = "40";
-        } else {
-            document.getElementById('score1').innerText = pointsMap[state.p1];
-            document.getElementById('score2').innerText = pointsMap[state.p2];
-        }
-
+        document.getElementById('score1').innerText = pointsMap[state.p1];
+        document.getElementById('score2').innerText = pointsMap[state.p2];
         document.getElementById('games1').innerText = state.games1;
         document.getElementById('games2').innerText = state.games2;
         document.getElementById('sets1').innerText = state.sets1;
         document.getElementById('sets2').innerText = state.sets2;
 
-        // Tennisbälle zeichnen
         renderBalls('balls1', state.totalGames1);
         renderBalls('balls2', state.totalGames2);
     }
@@ -294,9 +333,9 @@
     function showStats() {
         document.getElementById('stats').style.display = 'block';
         let winner = state.sets1 > state.sets2 ? state.t1Name : state.t2Name;
-        document.getElementById('winner-text').innerText = "Sieger: " + winner;
+        document.getElementById('winner-text').innerText = "🏆 Sieger: " + winner;
         document.getElementById('stat-sets').innerText = `Endstand Sätze: ${state.t1Name} ${state.sets1} : ${state.sets2} ${state.t2Name}`;
-        document.getElementById('stat-games').innerText = `Gesamt gewonnene Spiele: ${state.t1Name} (${state.totalGames1}) - ${state.t2Name} (${state.totalGames2})`;
+        document.getElementById('stat-games').innerText = `Gesamte Spiele: ${state.t1Name} (${state.totalGames1}) - ${state.t2Name} (${state.totalGames2})`;
     }
 
     function resetGame() {
@@ -306,59 +345,76 @@
             sets1: 0, sets2: 0, totalGames1: 0, totalGames2: 0,
             history: [], gameOver: false
         };
+        
+        // Felder leeren
+        document.getElementById('t1-name').value = '';
+        document.getElementById('t1-p1').value = '';
+        document.getElementById('t1-p2').value = '';
+        document.getElementById('t2-name').value = '';
+        document.getElementById('t2-p1').value = '';
+        document.getElementById('t2-p2').value = '';
+
         document.getElementById('setup').style.display = 'block';
         document.getElementById('scoreboard').style.display = 'none';
         document.getElementById('stats').style.display = 'none';
+
+        if (isListening && recognition) {
+            toggleVoice();
+        }
     }
 
-    // Sprachsteuerung
+    /* Sprachsteuerung */
     function initSpeech() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = true;
+            recognition.interimResults = false;
             recognition.lang = 'de-DE';
 
             recognition.onresult = function(event) {
                 let last = event.results.length - 1;
                 let text = event.results[last][0].transcript.trim().toLowerCase();
-                
-                if (text.includes("team 1 minus punkt") || text.includes("team 1 - punkt")) {
-                    removePoint(1);
-                } else if (text.includes("team 2 minus punkt") || text.includes("team 2 - punkt")) {
-                    removePoint(2);
-                } else if (text.includes("team 1 punkt")) {
-                    addPoint(1);
-                } else if (text.includes("team 2 punkt")) {
-                    addPoint(2);
+                console.log("Erkannt:", text);
+
+                // Dynamische Befehlserkennung
+                if (text.includes("minus") || text.includes("zurück") || text.includes("Korrektur")) {
+                    if (text.includes("1") || text.includes("eins") || text.includes("blau")) removePoint(1);
+                    else if (text.includes("2") || text.includes("zwei") || text.includes("rot")) removePoint(2);
+                } else if (text.includes("punkt") || text.includes("score")) {
+                    if (text.includes("1") || text.includes("eins") || text.includes("blau")) addPoint(1);
+                    else if (text.includes("2") || text.includes("zwei") || text.includes("rot")) addPoint(2);
                 }
             };
 
             recognition.onend = function() {
-                if (isListening) recognition.start(); // Neustart bei Unterbrechung
+                if (isListening) {
+                    try { recognition.start(); } catch(e){}
+                }
             };
         } else {
-            document.getElementById('voice-btn').innerText = "Sprachsteuerung nicht unterstützt";
-            document.getElementById('voice-btn').disabled = true;
+            const btn = document.getElementById('voice-btn');
+            btn.innerText = "Sprachsteuerung wird im Browser nicht unterstützt";
+            btn.disabled = true;
+            btn.style.backgroundColor = "#555";
         }
     }
 
     function toggleVoice() {
         if (!recognition) return;
         if (isListening) {
-            recognition.stop();
             isListening = false;
+            recognition.stop();
             document.getElementById('voice-btn').innerText = "🎤 Sprachsteuerung starten";
-            document.getElementById('voice-btn').style.backgroundColor = "#00cc66";
+            document.getElementById('voice-btn').style.backgroundColor = "#4CAF50";
         } else {
-            recognition.start();
             isListening = true;
+            recognition.start();
             document.getElementById('voice-btn').innerText = "🛑 Sprachsteuerung stoppen";
-            document.getElementById('voice-btn').style.backgroundColor = "#ff3333";
+            document.getElementById('voice-btn').style.backgroundColor = "#d32f2f";
         }
     }
 </script>
 
 </body>
 </html>
-
