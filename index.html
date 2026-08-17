@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Padel Zähler by Steini</title>
+    <title>Padel & Tennis Zähler</title>
     <style>
         * {
             box-sizing: border-box;
@@ -429,15 +429,19 @@
                 const statusEl = document.getElementById('voice-status');
                 statusEl.innerText = `Gehört: "${text}"`;
 
-                // Flexibler Abgleich der Sprachbefehle
-                if (text.includes("team 1 minus") || text.includes("team1 minus") || text.includes("team 1 -")) {
-                    removePoint(1);
-                } else if (text.includes("team 2 minus") || text.includes("team2 minus") || text.includes("team 2 -")) {
-                    removePoint(2);
-                } else if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
-                    addPoint(1);
-                } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
-                    addPoint(2);
+                // Strikte Abfrage: Erst Minus-Befehle prüfen, damit "minus" nicht als normaler Punkt zählt
+                if (text.includes("minus") || text.includes("-") || text.includes("weniger") || text.includes("abzug")) {
+                    if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
+                        removePoint(1);
+                    } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
+                        removePoint(2);
+                    }
+                } else {
+                    if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
+                        addPoint(1);
+                    } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
+                        addPoint(2);
+                    }
                 }
             };
 
