@@ -186,8 +186,8 @@
     <!-- Live Scoreboard -->
     <div id="scoreboard" class="card" style="display: none;">
         <button id="voice-btn" onclick="toggleVoice()">🎤 Sprachsteuerung starten</button>
-        <p id="voice-status" style="font-size: 16px; color: #aaa; margin-top: 10px;">
-            Befehle: "Team 1 / Team 2 Punkt", "Team 1 / Team 2 minus Punkt"
+        <p id="voice-status" style="font-size: 18px; color: #ffcc00; margin-top: 10px; font-weight: bold;">
+            Befehle: "Team 1", "Team 2", "Team 1 minus", "Team 2 minus"
         </p>
         
         <div class="score-board">
@@ -386,7 +386,7 @@
         let winner = state.sets1 > state.sets2 ? state.t1Name : state.t2Name;
         document.getElementById('winner-text').innerText = "🏆 Sieger: " + winner;
         document.getElementById('stat-sets').innerText = `Endstand Sätze: ${state.t1Name} ${state.sets1} : ${state.sets2} ${state.t2Name}`;
-        document.getElementById('stat-games').innerText = `Gesamte Spiele: ${state.t1Name} (${state.totalGames1}) - ${state.t2Name} (${state.totalGames2})`;
+        document.getElementById('stat-games').innerText = `Gesamte Spiele: ${state.t1Name} (${state.totalGames1}) - ${state.totalGames2} ${state.t2Name}`;
     }
 
     function resetGame() {
@@ -419,25 +419,43 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.continuous = true;
+            recognition.interimResults = false;
             recognition.lang = 'de-DE';
 
             recognition.onresult = function(event) {
                 let last = event.results.length - 1;
                 let text = event.results[last][0].transcript.trim().toLowerCase();
                 
-                if (text.includes("team 1 minus punkt") || text.includes("team 1 - punkt")) {
+                const statusEl = document.getElementById('voice-status');
+                statusEl.innerText = `Gehört: "${text}"`;
+
+                // Flexibler Abgleich der Sprachbefehle
+                if (text.includes("team 1 minus") || text.includes("team1 minus") || text.includes("team 1 -")) {
                     removePoint(1);
-                } else if (text.includes("team 2 minus punkt") || text.includes("team 2 - punkt")) {
+                } else if (text.includes("team 2 minus") || text.includes("team2 minus") || text.includes("team 2 -")) {
                     removePoint(2);
-                } else if (text.includes("team 1 punkt")) {
+                } else if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
                     addPoint(1);
-                } else if (text.includes("team 2 punkt")) {
+                } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
                     addPoint(2);
                 }
             };
 
+            recognition.onerror = function(event) {
+                console.error("Sprachfehler:", event.error);
+                const statusEl = document.getElementById('voice-status');
+                if (event.error === 'not-allowed') {
+                    statusEl.innerText = "❌ Mikrofon-Zugriff blockiert! Bitte im Browser erlauben.";
+                    statusEl.style.color = "#F44336";
+                } else {
+                    statusEl.innerText = "Fehler: " + event.error;
+                }
+            };
+
             recognition.onend = function() {
-                if (isListening) recognition.start();
+                if (isListening) {
+                    try { recognition.start(); } catch(e) {}
+                }
             };
         } else {
             const btn = document.getElementById('voice-btn');
@@ -448,16 +466,25 @@
 
     function toggleVoice() {
         if (!recognition) return;
+        const statusEl = document.getElementById('voice-status');
+        
         if (isListening) {
             recognition.stop();
             isListening = false;
             document.getElementById('voice-btn').innerText = "🎤 Sprachsteuerung starten";
             document.getElementById('voice-btn').style.backgroundColor = "#4CAF50";
+            statusEl.innerText = 'Befehle: "Team 1", "Team 2", "Team 1 minus", "Team 2 minus"';
+            statusEl.style.color = "#ffcc00";
         } else {
-            recognition.start();
-            isListening = true;
-            document.getElementById('voice-btn').innerText = "🛑 Sprachsteuerung stoppen";
-            document.getElementById('voice-btn').style.backgroundColor = "#d32f2f";
+            try {
+                recognition.start();
+                isListening = true;
+                document.getElementById('voice-btn').innerText = "🛑 Sprachsteuerung stoppen";
+                document.getElementById('voice-btn').style.backgroundColor = "#d32f2f";
+                statusEl.innerText = "🎧 Höre zu... Spreche z.B. 'Team 1'";
+            } catch(err) {
+                console.error("Start-Fehler:", err);
+            }
         }
     }
 </script>
