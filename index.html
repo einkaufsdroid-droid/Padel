@@ -1,461 +1,1009 @@
+
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Padel Tracker">
     <title>Padel & Tennis Zähler</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+            --bg-main: #0b0f14;
+            --bg-1: #111827;
+            --bg-2: #07111f;
+            --surface: rgba(20, 27, 38, 0.82);
+            --surface-strong: rgba(15, 23, 42, 0.94);
+            --surface-soft: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.12);
+            --text: #f8fafc;
+            --muted: #a7b0bf;
+            --yellow: #facc15;
+            --yellow-2: #fde047;
+            --blue: #38bdf8;
+            --blue-2: #0284c7;
+            --red: #fb7185;
+            --red-2: #be123c;
+            --green: #22c55e;
+            --danger: #ef4444;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+            --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.28);
+            --radius-lg: 26px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
         }
+
+        html[data-theme="light"] {
+            --bg-main: #e8eef7;
+            --bg-1: #f8fafc;
+            --bg-2: #dbeafe;
+            --surface: rgba(255, 255, 255, 0.78);
+            --surface-strong: rgba(255, 255, 255, 0.95);
+            --surface-soft: rgba(15, 23, 42, 0.045);
+            --border: rgba(15, 23, 42, 0.12);
+            --text: #0f172a;
+            --muted: #475569;
+            --shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+            --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: white;
-            text-align: center;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 10px;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            color: var(--text);
+            text-align: center;
+            background:
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 34%),
+                radial-gradient(circle at top right, rgba(251, 113, 133, 0.16), transparent 32%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, var(--bg-main));
+            padding: 16px;
         }
+
+        button, input, select { font: inherit; }
+
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
-            position: relative;
-            padding-bottom: 70px;
+            padding-bottom: 90px;
         }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .app-title {
+            font-size: clamp(30px, 4vw, 52px);
+            margin: 8px 0 18px;
+            font-weight: 900;
+            letter-spacing: -0.045em;
+        }
+
+        .subtitle {
+            margin: -8px 0 18px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
         .card {
-            background-color: #1e1e1e;
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            background: linear-gradient(180deg, var(--surface), var(--surface-strong));
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: var(--radius-lg);
+            padding: clamp(18px, 3vw, 32px);
+            margin-bottom: 18px;
         }
-        input, select, button {
-            padding: 16px;
-            margin: 8px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            font-size: 20px;
-            background-color: #2a2a2a;
-            color: white;
-        }
-        input::placeholder { color: #888; }
-        button {
-            background-color: #ffcc00;
-            color: black;
-            font-weight: bold;
+
+        .small-btn, button {
+            border: 0;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            background: linear-gradient(135deg, var(--yellow), var(--yellow-2));
+            color: #111827;
+            font-weight: 850;
             cursor: pointer;
-            border: none;
-            transition: transform 0.1s;
+            box-shadow: 0 12px 28px rgba(250, 204, 21, 0.18);
+            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
         }
+
+        button:hover { filter: brightness(1.04); }
         button:active { transform: scale(0.98); }
 
-        #fullscreen-btn {
-            background-color: #333;
-            color: white;
-            font-size: 18px;
-            padding: 12px 22px;
-            margin-bottom: 10px;
+        .ghost-btn {
+            background: var(--surface-soft);
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-soft);
         }
-        
-        /* Scoreboard Layout */
+
+        .danger-btn {
+            background: linear-gradient(135deg, #b91c1c, var(--danger));
+            color: white;
+        }
+
+        .success-btn {
+            background: linear-gradient(135deg, #16a34a, var(--green));
+            color: white;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .team-setup {
+            background: var(--surface-soft);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .team-setup.blue {
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            border-left: 6px solid var(--blue);
+        }
+
+        .team-setup.red {
+            border: 1px solid rgba(251, 113, 133, 0.45);
+            border-left: 6px solid var(--red);
+        }
+
+        .team-setup.blue h3 { color: var(--blue); }
+        .team-setup.red h3 { color: var(--red); }
+
+        input, select {
+            width: min(100%, 370px);
+            padding: 16px;
+            margin: 8px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--text);
+            font-size: 20px;
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--yellow);
+            box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.14);
+        }
+
+        input::placeholder { color: var(--muted); opacity: 0.78; }
+
+        .options-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .switch-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 750;
+            color: var(--muted);
+        }
+
+        .switch-line input { width: auto; transform: scale(1.2); }
+
+        .primary-start-btn {
+            font-size: 24px;
+            width: min(80%, 520px);
+            padding: 18px;
+            margin-top: 16px;
+        }
+
+        .match-hud {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .hud-item {
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .hud-label {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 750;
+        }
+
+        .hud-value {
+            display: block;
+            margin-top: 5px;
+            font-size: clamp(20px, 3vw, 30px);
+            font-weight: 900;
+        }
+
         .score-board {
             display: flex;
             justify-content: space-between;
             gap: 20px;
             margin-top: 15px;
         }
+
         .team {
             width: 50%;
-            padding: 20px;
-            border-radius: 16px;
+            min-height: 460px;
+            padding: clamp(18px, 3vw, 28px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
         }
-        .team h2 {
-            font-size: 36px;
-            margin: 10px 0 5px 0;
+
+        .team::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,.18), transparent 40%);
+            pointer-events: none;
         }
-        /* Team Farben */
+
+        .team > * { position: relative; z-index: 1; }
+
         .team-1 {
-            background-color: rgba(13, 71, 161, 0.4);
-            border: 3px solid #2196F3;
+            background: linear-gradient(160deg, rgba(8, 47, 73, 0.92), rgba(14, 116, 144, 0.28));
+            border: 2px solid rgba(56, 189, 248, 0.72);
         }
+
         .team-2 {
-            background-color: rgba(183, 28, 28, 0.4);
-            border: 3px solid #F44336;
+            background: linear-gradient(160deg, rgba(76, 5, 25, 0.92), rgba(159, 18, 57, 0.28));
+            border: 2px solid rgba(251, 113, 133, 0.72);
         }
-        
-        /* Maximale Lesbarkeit für die Punkte */
+
+        html[data-theme="light"] .team-1 { background: linear-gradient(160deg, rgba(224, 242, 254, 0.96), rgba(186, 230, 253, 0.84)); }
+        html[data-theme="light"] .team-2 { background: linear-gradient(160deg, rgba(255, 228, 230, 0.96), rgba(254, 205, 211, 0.84)); }
+
+        .team h2 {
+            font-size: clamp(28px, 4vw, 42px);
+            margin: 10px 0 5px;
+            letter-spacing: -0.035em;
+        }
+
+        .players {
+            color: var(--muted);
+            font-size: 18px;
+            min-height: 24px;
+            font-weight: 650;
+        }
+
+        .server-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 34px;
+            margin: 8px auto 6px;
+            padding: 7px 13px;
+            border-radius: 999px;
+            border: 1px solid rgba(250, 204, 21, 0.5);
+            color: var(--yellow);
+            background: rgba(250, 204, 21, 0.10);
+            font-weight: 850;
+            opacity: 0;
+            transform: translateY(-3px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .team.serving .server-pill { opacity: 1; transform: translateY(0); }
+
+        .team.serving {
+            outline: 4px solid rgba(250, 204, 21, 0.34);
+            outline-offset: 4px;
+        }
+
         .score {
-            font-size: clamp(100px, 25vw, 220px);
+            font-size: clamp(88px, 23vw, 215px);
             font-weight: 900;
-            line-height: 0.9;
-            margin: 15px 0;
-            letter-spacing: -2px;
+            line-height: 0.92;
+            margin: 16px 0;
+            letter-spacing: -0.08em;
+            text-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+            transition: transform 0.16s ease, filter 0.16s ease;
         }
-        .team-1 .score { color: #64B5F6; }
-        .team-2 .score { color: #EF5350; }
+
+        .score.bump {
+            animation: bump 260ms ease;
+        }
+
+        @keyframes bump {
+            0% { transform: scale(1); filter: brightness(1); }
+            45% { transform: scale(1.09); filter: brightness(1.2); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        .team-1 .score { color: #7dd3fc; }
+        .team-2 .score { color: #fda4af; }
+        html[data-theme="light"] .team-1 .score { color: #0369a1; }
+        html[data-theme="light"] .team-2 .score { color: #be123c; }
 
         .game-info {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 850;
             margin: 8px 0;
+        }
+
+        .sets-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 13px;
+            border-radius: 999px;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            font-weight: 850;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
         }
 
         .action-btn {
             font-size: 24px;
-            padding: 18px 28px;
-            width: 45%;
-            margin: 5px;
+            padding: 18px 25px;
+            min-width: 42%;
+            margin: 0;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue-2), var(--blue));
+            color: white;
+            box-shadow: 0 12px 24px rgba(56, 189, 248, 0.24);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, var(--red-2), var(--red));
+            color: white;
+            box-shadow: 0 12px 24px rgba(251, 113, 133, 0.24);
+        }
+
+        .btn-muted {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
         }
 
         .ball {
             display: inline-block;
-            width: 22px;
-            height: 22px;
-            background-color: #ccff00;
-            border-radius: 50%;
+            width: 21px;
+            height: 21px;
             margin: 3px;
-            box-shadow: 0 0 8px #ccff00;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #f7ff7a, #ccff00 60%, #86a800);
+            box-shadow: 0 0 12px rgba(204, 255, 0, 0.7);
         }
-        
+
         #voice-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 18px 28px;
-            font-size: 22px;
             width: 100%;
             max-width: 500px;
+            font-size: 22px;
         }
+
+        #voice-status {
+            color: var(--yellow);
+            margin: 10px 0 0;
+            font-weight: 750;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-soft);
+        }
+
+        th, td {
+            padding: 13px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+
+        .empty-history {
+            color: var(--muted);
+            padding: 16px;
+            font-weight: 650;
+        }
+
         #reset-btn {
             position: fixed;
             bottom: 15px;
             right: 15px;
-            background-color: #d32f2f;
-            color: white;
-            padding: 14px 22px;
-            border-radius: 10px;
-            font-size: 16px;
             z-index: 100;
+            padding: 14px 20px;
+            font-size: 16px;
         }
 
-        @media (max-width: 700px) {
+        .install-hint {
+            color: var(--muted);
+            margin: 10px 0 0;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .winner-title {
+            color: var(--yellow);
+            font-size: clamp(32px, 4vw, 44px);
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        @media (max-width: 860px) {
+            body { padding: 10px; }
+            .setup-grid, .match-hud { grid-template-columns: 1fr; }
             .score-board { flex-direction: column; }
-            .team { width: 100%; }
-            .action-btn { width: 48%; }
+            .team { width: 100%; min-height: auto; }
+            .action-btn { min-width: 46%; }
+            .topbar { justify-content: center; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <button id="fullscreen-btn" onclick="toggleFullscreen()">⛶ Vollbild</button>
-    <h1 style="font-size: 36px; margin: 10px 0;">Padel Score Tracker by Steini</h1>
-
-    <!-- Setup Formular -->
-    <div id="setup" class="card">
-        <h2 style="font-size: 28px;">Spiel-Einstellungen</h2>
-        
-        <div style="border-left: 5px solid #2196F3; padding-left: 12px; margin-bottom: 20px;">
-            <h3 style="color: #64B5F6; font-size: 24px;">Team 1 (Blau)</h3>
-            <input type="text" id="t1-name" placeholder="Teamname (Standard: Team 1)"><br>
-            <input type="text" id="t1-p1" placeholder="Spieler 1">
-            <input type="text" id="t1-p2" placeholder="Spieler 2">
+    <div class="topbar">
+        <button id="fullscreen-btn" class="ghost-btn" onclick="toggleFullscreen()">⛶ Vollbild</button>
+        <div class="top-actions">
+            <button id="theme-btn" class="ghost-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <button id="install-btn" class="ghost-btn" style="display:none;" onclick="installApp()">⬇ App installieren</button>
         </div>
-
-        <div style="border-left: 5px solid #F44336; padding-left: 12px; margin-bottom: 20px;">
-            <h3 style="color: #EF5350; font-size: 24px;">Team 2 (Rot)</h3>
-            <input type="text" id="t2-name" placeholder="Teamname (Standard: Team 2)"><br>
-            <input type="text" id="t2-p1" placeholder="Spieler 1">
-            <input type="text" id="t2-p2" placeholder="Spieler 2">
-        </div>
-
-        <hr style="border-color: #333; margin: 20px 0;">
-        <label for="sets-select" style="font-size: 22px;">Gewinnsätze: </label>
-        <select id="sets-select">
-            <option value="1">1 Gewinnsatz</option>
-            <option value="2" selected>Best of 3 (2 Gewinnsätze)</option>
-            <option value="3">Best of 5 (3 Gewinnsätze)</option>
-        </select><br><br>
-        <button onclick="startGame()" style="font-size: 24px; width: 80%; padding: 18px;">Spiel starten</button>
     </div>
 
-    <!-- Live Scoreboard -->
-    <div id="scoreboard" class="card" style="display: none;">
-        <button id="voice-btn" onclick="toggleVoice()">🎤 Sprachsteuerung starten</button>
-        <p id="voice-status" style="font-size: 18px; color: #ffcc00; margin-top: 10px; font-weight: bold;">
-            Befehle: "Team 1", "Team 2", "Team 1 minus", "Team 2 minus"
-        </p>
-        
+    <h1 class="app-title">Padel Score Tracker by Steini</h1>
+    <p class="subtitle">Moderner Match-Zähler für Padel & Tennis</p>
+
+    <div id="setup" class="card">
+        <h2 style="font-size: 30px;">Spiel-Einstellungen</h2>
+        <div class="setup-grid">
+            <div class="team-setup blue">
+                <h3>Team 1 (Blau)</h3>
+                <input type="text" id="t1-name" placeholder="Teamname (Standard: Team 1)"><br>
+                <input type="text" id="t1-p1" placeholder="Spieler 1">
+                <input type="text" id="t1-p2" placeholder="Spieler 2">
+            </div>
+            <div class="team-setup red">
+                <h3>Team 2 (Rot)</h3>
+                <input type="text" id="t2-name" placeholder="Teamname (Standard: Team 2)"><br>
+                <input type="text" id="t2-p1" placeholder="Spieler 1">
+                <input type="text" id="t2-p2" placeholder="Spieler 2">
+            </div>
+        </div>
+
+        <div class="options-row">
+            <label for="sets-select" style="font-size: 22px; font-weight: 800;">Gewinnsätze:</label>
+            <select id="sets-select">
+                <option value="1">1 Gewinnsatz</option>
+                <option value="2" selected>Best of 3 (2 Gewinnsätze)</option>
+                <option value="3">Best of 5 (3 Gewinnsätze)</option>
+            </select>
+            <label class="switch-line"><input type="checkbox" id="golden-point"> Golden Point</label>
+            <label class="switch-line"><input type="checkbox" id="sound-feedback" checked> Sound</label>
+        </div>
+
+        <button onclick="startGame()" class="primary-start-btn">Spiel starten</button>
+        <p class="install-hint">Tipp: Die App speichert Spielstände automatisch im Browser und kann als PWA installiert werden.</p>
+    </div>
+
+    <div id="scoreboard" class="card" style="display:none;">
+        <div class="match-hud">
+            <div class="hud-item"><span class="hud-label">Matchzeit</span><span id="match-time" class="hud-value">00:00</span></div>
+            <div class="hud-item"><span class="hud-label">Aufschlag</span><span id="server-display" class="hud-value">Team 1</span></div>
+            <div class="hud-item"><span class="hud-label">Modus</span><span id="mode-display" class="hud-value">Best of 3</span></div>
+            <div class="hud-item"><span class="hud-label">Status</span><span id="match-status" class="hud-value">Live</span></div>
+        </div>
+
+        <button id="voice-btn" class="success-btn" onclick="toggleVoice()">🎤 Sprachsteuerung starten</button>
+        <p id="voice-status">Befehle: "Team 1", "Team 2", "Team 1 minus", "Team 2 minus"</p>
+
         <div class="score-board">
-            <!-- Team 1 -->
-            <div class="team team-1">
+            <div id="team-card-1" class="team team-1 serving">
+                <div class="server-pill">🎾 Aufschlag</div>
                 <h2 id="disp-t1-name">Team 1</h2>
-                <p id="disp-t1-players" style="color: #bbb; font-size: 18px;"></p>
+                <p id="disp-t1-players" class="players"></p>
                 <div id="score1" class="score">0</div>
                 <div class="game-info">Spiele: <b id="games1">0</b></div>
-                <div class="game-info">Sätze: <b id="sets1">0</b></div>
-                <div id="balls1" style="margin-top: 12px;"></div>
-                <br>
-                <button class="action-btn" onclick="addPoint(1)" style="background-color: #2196F3; color: white;">+ Punkt</button>
-                <button class="action-btn" onclick="removePoint(1)" style="background-color: #444; color: white;">- Punkt</button>
+                <div class="sets-line">Sätze: <b id="sets1">0</b></div>
+                <div id="balls1" style="margin-top: 14px;"></div>
+                <div class="action-row">
+                    <button class="action-btn btn-blue" onclick="addPoint(1)">+ Punkt</button>
+                    <button class="action-btn btn-muted" onclick="undoLast()">↩ Undo</button>
+                </div>
             </div>
-            
-            <!-- Team 2 -->
-            <div class="team team-2">
+
+            <div id="team-card-2" class="team team-2">
+                <div class="server-pill">🎾 Aufschlag</div>
                 <h2 id="disp-t2-name">Team 2</h2>
-                <p id="disp-t2-players" style="color: #bbb; font-size: 18px;"></p>
+                <p id="disp-t2-players" class="players"></p>
                 <div id="score2" class="score">0</div>
                 <div class="game-info">Spiele: <b id="games2">0</b></div>
-                <div class="game-info">Sätze: <b id="sets2">0</b></div>
-                <div id="balls2" style="margin-top: 12px;"></div>
-                <br>
-                <button class="action-btn" onclick="addPoint(2)" style="background-color: #F44336; color: white;">+ Punkt</button>
-                <button class="action-btn" onclick="removePoint(2)" style="background-color: #444; color: white;">- Punkt</button>
+                <div class="sets-line">Sätze: <b id="sets2">0</b></div>
+                <div id="balls2" style="margin-top: 14px;"></div>
+                <div class="action-row">
+                    <button class="action-btn btn-red" onclick="addPoint(2)">+ Punkt</button>
+                    <button class="action-btn btn-muted" onclick="undoLast()">↩ Undo</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Match Statistik -->
-    <div id="stats" class="card" style="display: none;">
-        <h2 style="font-size: 32px;">Match Beendet!</h2>
-        <h1 id="winner-text" style="color: #ffcc00; font-size: 40px;"></h1>
-        <hr style="border-color: #333;">
+    <div id="history-card" class="card" style="display:none;">
+        <h2 style="font-size: 28px;">Satzhistorie</h2>
+        <div id="set-history-content"></div>
+    </div>
+
+    <div id="stats" class="card" style="display:none;">
+        <h2 style="font-size: 32px;">Match beendet!</h2>
+        <h1 id="winner-text" class="winner-title"></h1>
+        <hr class="divider">
         <h3 style="font-size: 26px;">Endstatistik</h3>
         <p id="stat-sets" style="font-size: 22px;"></p>
-        <p id="stat-games" style="font-size: 20px; color: #aaa;"></p>
+        <p id="stat-games" style="font-size: 20px; color: var(--muted);"></p>
+        <p id="stat-time" style="font-size: 20px; color: var(--muted);"></p>
     </div>
 </div>
 
-<button id="reset-btn" onclick="resetGame()">Komplett Reset</button>
+<button id="reset-btn" class="danger-btn" onclick="resetGame()">Komplett Reset</button>
 
 <script>
-    let state = {
-        t1Name: "Team 1", t2Name: "Team 2",
-        t1Players: "", t2Players: "",
-        targetSets: 2,
-        p1: 0, p2: 0, 
-        games1: 0, games2: 0,
-        sets1: 0, sets2: 0,
-        totalGames1: 0, totalGames2: 0,
-        history: [],
-        gameOver: false
-    };
-
+    const STORAGE_KEY = 'steiniPadelTrackerStateV2';
+    const THEME_KEY = 'steiniPadelTrackerTheme';
     const pointsMap = ["0", "15", "30", "40", "Vorteil"];
+
+    let state = getFreshState();
     let recognition = null;
     let isListening = false;
+    let timerInterval = null;
+    let deferredPrompt = null;
+
+    function getFreshState() {
+        return {
+            t1Name: "Team 1", t2Name: "Team 2",
+            t1Players: "", t2Players: "",
+            targetSets: 2,
+            goldenPoint: false,
+            soundFeedback: true,
+            p1: 0, p2: 0,
+            games1: 0, games2: 0,
+            sets1: 0, sets2: 0,
+            totalGames1: 0, totalGames2: 0,
+            setHistory: [],
+            history: [],
+            gameOver: false,
+            started: false,
+            startTime: null,
+            elapsedBeforePause: 0,
+            serverTeam: 1
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applySavedTheme();
+        restoreState();
+        registerServiceWorker();
+    });
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        document.getElementById('install-btn').style.display = 'inline-block';
+    });
+
+    function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    }
+
+    async function installApp() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        document.getElementById('install-btn').style.display = 'none';
+    }
+
+    function applySavedTheme() {
+        const saved = localStorage.getItem(THEME_KEY) || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.getElementById('theme-btn').innerText = saved === 'dark' ? '🌙 Dark Mode' : '☀ Light Mode';
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', saved === 'dark' ? '#0b0f14' : '#e8eef7');
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(THEME_KEY, next);
+        applySavedTheme();
+    }
 
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                alert(`Fehler beim Aktivieren des Vollbilds: ${err.message}`);
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
+            document.documentElement.requestFullscreen().catch(err => alert(`Fehler beim Aktivieren des Vollbilds: ${err.message}`));
+        } else if (document.exitFullscreen) {
+            document.exitFullscreen();
         }
     }
 
     function startGame() {
         state.t1Name = document.getElementById('t1-name').value.trim() || "Team 1";
         state.t2Name = document.getElementById('t2-name').value.trim() || "Team 2";
-        
-        let p1_1 = document.getElementById('t1-p1').value.trim();
-        let p1_2 = document.getElementById('t1-p2').value.trim();
+        const p1_1 = document.getElementById('t1-p1').value.trim();
+        const p1_2 = document.getElementById('t1-p2').value.trim();
+        const p2_1 = document.getElementById('t2-p1').value.trim();
+        const p2_2 = document.getElementById('t2-p2').value.trim();
         state.t1Players = [p1_1, p1_2].filter(Boolean).join(" & ");
-
-        let p2_1 = document.getElementById('t2-p1').value.trim();
-        let p2_2 = document.getElementById('t2-p2').value.trim();
         state.t2Players = [p2_1, p2_2].filter(Boolean).join(" & ");
+        state.targetSets = parseInt(document.getElementById('sets-select').value, 10);
+        state.goldenPoint = document.getElementById('golden-point').checked;
+        state.soundFeedback = document.getElementById('sound-feedback').checked;
+        state.started = true;
+        state.gameOver = false;
+        state.startTime = Date.now();
+        state.elapsedBeforePause = 0;
+        state.serverTeam = 1;
+        showMatchScreen();
+        initSpeech();
+        startTimer();
+        updateDisplay();
+        persistState();
+    }
 
-        state.targetSets = parseInt(document.getElementById('sets-select').value);
-
+    function showMatchScreen() {
         document.getElementById('disp-t1-name').innerText = state.t1Name;
         document.getElementById('disp-t1-players').innerText = state.t1Players;
         document.getElementById('disp-t2-name').innerText = state.t2Name;
         document.getElementById('disp-t2-players').innerText = state.t2Players;
-
         document.getElementById('setup').style.display = 'none';
         document.getElementById('scoreboard').style.display = 'block';
-        
-        initSpeech();
-        updateDisplay();
+        document.getElementById('history-card').style.display = 'block';
+        document.getElementById('mode-display').innerText = state.targetSets === 1 ? '1 Gewinnsatz' : `Best of ${state.targetSets * 2 - 1}`;
     }
 
     function addPoint(team) {
         if (state.gameOver) return;
-        saveState();
+        saveSnapshot();
+        let gameWon = false;
 
-        if (team === 1) {
+        if (state.goldenPoint && state.p1 === 3 && state.p2 === 3) {
+            winGame(team);
+            gameWon = true;
+        } else if (team === 1) {
             if (state.p1 === 3 && state.p2 === 3) state.p1 = 4;
             else if (state.p1 === 3 && state.p2 === 4) state.p2 = 3;
-            else if (state.p1 === 4 || (state.p1 === 3 && state.p2 < 3)) winGame(1);
+            else if (state.p1 === 4 || (state.p1 === 3 && state.p2 < 3)) { winGame(1); gameWon = true; }
             else state.p1++;
         } else {
             if (state.p1 === 3 && state.p2 === 3) state.p2 = 4;
             else if (state.p2 === 3 && state.p1 === 4) state.p1 = 3;
-            else if (state.p2 === 4 || (state.p2 === 3 && state.p1 < 3)) winGame(2);
+            else if (state.p2 === 4 || (state.p2 === 3 && state.p1 < 3)) { winGame(2); gameWon = true; }
             else state.p2++;
         }
+
+        animateScore(team);
+        playFeedback(team, gameWon);
         updateDisplay();
+        persistState();
     }
 
-    function removePoint(team) {
-        if (state.history.length > 0) {
-            let lastState = state.history.pop();
-            state.p1 = lastState.p1;
-            state.p2 = lastState.p2;
-            state.games1 = lastState.games1;
-            state.games2 = lastState.games2;
-            state.sets1 = lastState.sets1;
-            state.sets2 = lastState.sets2;
-            state.totalGames1 = lastState.totalGames1;
-            state.totalGames2 = lastState.totalGames2;
-            state.gameOver = false;
-            document.getElementById('stats').style.display = 'none';
-            updateDisplay();
-        }
+    function undoLast() {
+        if (state.history.length === 0) return;
+        const lastState = state.history.pop();
+        state = { ...lastState, history: state.history };
+        document.getElementById('stats').style.display = state.gameOver ? 'block' : 'none';
+        if (state.started) showMatchScreen();
+        startTimer();
+        updateDisplay();
+        persistState();
+    }
+
+    function saveSnapshot() {
+        const snapshot = JSON.parse(JSON.stringify(state));
+        delete snapshot.history;
+        state.history.push(snapshot);
+        if (state.history.length > 80) state.history.shift();
     }
 
     function winGame(team) {
         state.p1 = 0;
         state.p2 = 0;
-        if (team === 1) {
-            state.games1++;
-            state.totalGames1++;
-        } else {
-            state.games2++;
-            state.totalGames2++;
-        }
+        if (team === 1) { state.games1++; state.totalGames1++; }
+        else { state.games2++; state.totalGames2++; }
+
+        state.serverTeam = state.serverTeam === 1 ? 2 : 1;
 
         if (state.games1 >= 6 && state.games1 - state.games2 >= 2) {
-            state.sets1++;
-            state.games1 = 0;
-            state.games2 = 0;
+            closeSet(1);
         } else if (state.games2 >= 6 && state.games2 - state.games1 >= 2) {
-            state.sets2++;
-            state.games1 = 0;
-            state.games2 = 0;
+            closeSet(2);
         }
 
         if (state.sets1 === state.targetSets || state.sets2 === state.targetSets) {
             state.gameOver = true;
+            stopTimer();
             showStats();
         }
     }
 
-    function saveState() {
-        state.history.push(JSON.parse(JSON.stringify(state)));
+    function closeSet(winnerTeam) {
+        state.setHistory.push({
+            set: state.setHistory.length + 1,
+            games1: state.games1,
+            games2: state.games2,
+            winner: winnerTeam,
+            time: formatElapsed(getElapsedMs())
+        });
+        if (winnerTeam === 1) state.sets1++;
+        else state.sets2++;
+        state.games1 = 0;
+        state.games2 = 0;
     }
 
     function updateDisplay() {
+        const s1 = document.getElementById('score1');
+        const s2 = document.getElementById('score2');
         if (state.p1 === 3 && state.p2 === 3) {
-            document.getElementById('score1').innerText = "40";
-            document.getElementById('score2').innerText = "40";
+            s1.innerText = "40";
+            s2.innerText = "40";
+            if (state.goldenPoint) document.getElementById('match-status').innerText = 'Golden Point';
         } else {
-            document.getElementById('score1').innerText = pointsMap[state.p1];
-            document.getElementById('score2').innerText = pointsMap[state.p2];
+            s1.innerText = pointsMap[state.p1];
+            s2.innerText = pointsMap[state.p2];
+            document.getElementById('match-status').innerText = state.gameOver ? 'Beendet' : 'Live';
         }
-
         document.getElementById('games1').innerText = state.games1;
         document.getElementById('games2').innerText = state.games2;
         document.getElementById('sets1').innerText = state.sets1;
         document.getElementById('sets2').innerText = state.sets2;
-
+        document.getElementById('server-display').innerText = state.serverTeam === 1 ? state.t1Name : state.t2Name;
+        document.getElementById('team-card-1').classList.toggle('serving', state.serverTeam === 1);
+        document.getElementById('team-card-2').classList.toggle('serving', state.serverTeam === 2);
         renderBalls('balls1', state.totalGames1);
         renderBalls('balls2', state.totalGames2);
+        renderSetHistory();
+        updateTimerDisplay();
     }
 
     function renderBalls(containerId, count) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
         for (let i = 0; i < count; i++) {
-            let ball = document.createElement('span');
+            const ball = document.createElement('span');
             ball.className = 'ball';
             container.appendChild(ball);
         }
     }
 
+    function renderSetHistory() {
+        const wrap = document.getElementById('set-history-content');
+        if (!state.setHistory.length) {
+            wrap.innerHTML = '<div class="empty-history">Noch kein Satz abgeschlossen.</div>';
+            return;
+        }
+        let rows = state.setHistory.map(item => `
+            <tr>
+                <td>${item.set}</td>
+                <td>${state.t1Name} ${item.games1} : ${item.games2} ${state.t2Name}</td>
+                <td>${item.winner === 1 ? state.t1Name : state.t2Name}</td>
+                <td>${item.time}</td>
+            </tr>`).join('');
+        wrap.innerHTML = `
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Satz</th><th>Ergebnis</th><th>Gewinner</th><th>Zeit</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
     function showStats() {
         document.getElementById('stats').style.display = 'block';
-        let winner = state.sets1 > state.sets2 ? state.t1Name : state.t2Name;
+        const winner = state.sets1 > state.sets2 ? state.t1Name : state.t2Name;
         document.getElementById('winner-text').innerText = "🏆 Sieger: " + winner;
         document.getElementById('stat-sets').innerText = `Endstand Sätze: ${state.t1Name} ${state.sets1} : ${state.sets2} ${state.t2Name}`;
         document.getElementById('stat-games').innerText = `Gesamte Spiele: ${state.t1Name} (${state.totalGames1}) - ${state.totalGames2} ${state.t2Name}`;
+        document.getElementById('stat-time').innerText = `Matchzeit: ${formatElapsed(getElapsedMs())}`;
     }
 
-    function resetGame() {
-        state = {
-            t1Name: "Team 1", t2Name: "Team 2", t1Players: "", t2Players: "",
-            targetSets: 2, p1: 0, p2: 0, games1: 0, games2: 0,
-            sets1: 0, sets2: 0, totalGames1: 0, totalGames2: 0,
-            history: [], gameOver: false
-        };
-        
-        document.getElementById('t1-name').value = '';
-        document.getElementById('t1-p1').value = '';
-        document.getElementById('t1-p2').value = '';
-        document.getElementById('t2-name').value = '';
-        document.getElementById('t2-p1').value = '';
-        document.getElementById('t2-p2').value = '';
+    function startTimer() {
+        stopTimer();
+        if (!state.started || state.gameOver) return;
+        timerInterval = setInterval(() => {
+            updateTimerDisplay();
+            persistState(false);
+        }, 1000);
+    }
 
-        document.getElementById('setup').style.display = 'block';
-        document.getElementById('scoreboard').style.display = 'none';
-        document.getElementById('stats').style.display = 'none';
+    function stopTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+    }
 
-        if (isListening && recognition) {
-            toggleVoice();
+    function getElapsedMs() {
+        if (!state.started) return 0;
+        if (state.gameOver) return state.elapsedBeforePause || 0;
+        return (Date.now() - state.startTime) + (state.elapsedBeforePause || 0);
+    }
+
+    function updateTimerDisplay() {
+        document.getElementById('match-time').innerText = formatElapsed(getElapsedMs());
+    }
+
+    function formatElapsed(ms) {
+        const total = Math.floor(ms / 1000);
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        if (h > 0) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function animateScore(team) {
+        const el = document.getElementById(team === 1 ? 'score1' : 'score2');
+        el.classList.remove('bump');
+        void el.offsetWidth;
+        el.classList.add('bump');
+    }
+
+    function playFeedback(team, gameWon) {
+        if (!state.soundFeedback) return;
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = gameWon ? 740 : (team === 1 ? 520 : 440);
+            gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.13);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.14);
+            if (navigator.vibrate) navigator.vibrate(gameWon ? [60, 40, 60] : 30);
+        } catch(e) {}
+    }
+
+    function persistState(includeTime = true) {
+        if (includeTime && state.started && !state.gameOver) {
+            const nowElapsed = getElapsedMs();
+            const copy = { ...state, elapsedBeforePause: nowElapsed, startTime: Date.now() };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
+            return;
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function restoreState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        try {
+            const restored = JSON.parse(raw);
+            state = { ...getFreshState(), ...restored, history: restored.history || [] };
+            if (state.started) {
+                state.startTime = Date.now();
+                showMatchScreen();
+                initSpeech();
+                startTimer();
+                updateDisplay();
+                if (state.gameOver) showStats();
+            } else {
+                document.getElementById('t1-name').value = state.t1Name === 'Team 1' ? '' : state.t1Name;
+                document.getElementById('t2-name').value = state.t2Name === 'Team 2' ? '' : state.t2Name;
+                document.getElementById('sets-select').value = state.targetSets;
+                document.getElementById('golden-point').checked = state.goldenPoint;
+                document.getElementById('sound-feedback').checked = state.soundFeedback;
+            }
+        } catch(e) {
+            localStorage.removeItem(STORAGE_KEY);
         }
     }
 
-    /* Sprachsteuerung */
+    function resetGame() {
+        stopTimer();
+        if (isListening && recognition) toggleVoice();
+        state = getFreshState();
+        localStorage.removeItem(STORAGE_KEY);
+        ['t1-name','t1-p1','t1-p2','t2-name','t2-p1','t2-p2'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('sets-select').value = '2';
+        document.getElementById('golden-point').checked = false;
+        document.getElementById('sound-feedback').checked = true;
+        document.getElementById('setup').style.display = 'block';
+        document.getElementById('scoreboard').style.display = 'none';
+        document.getElementById('history-card').style.display = 'none';
+        document.getElementById('stats').style.display = 'none';
+    }
+
     function initSpeech() {
+        if (recognition) return;
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = false;
             recognition.lang = 'de-DE';
-
             recognition.onresult = function(event) {
-                let last = event.results.length - 1;
-                let text = event.results[last][0].transcript.trim().toLowerCase();
-                
+                const last = event.results.length - 1;
+                const text = event.results[last][0].transcript.trim().toLowerCase();
                 const statusEl = document.getElementById('voice-status');
                 statusEl.innerText = `Gehört: "${text}"`;
-
-                // Strikte Abfrage: Erst Minus-Befehle prüfen, damit "minus" nicht als normaler Punkt zählt
-                if (text.includes("minus") || text.includes("-") || text.includes("weniger") || text.includes("abzug")) {
-                    if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
-                        removePoint(1);
-                    } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
-                        removePoint(2);
-                    }
-                } else {
-                    if (text.includes("team 1") || text.includes("team1") || text.includes("blau")) {
-                        addPoint(1);
-                    } else if (text.includes("team 2") || text.includes("team2") || text.includes("rot")) {
-                        addPoint(2);
-                    }
+                if (text.includes('minus') || text.includes('-') || text.includes('weniger') || text.includes('abzug') || text.includes('zurück')) {
+                    undoLast();
+                } else if (text.includes('team 1') || text.includes('team1') || text.includes('blau')) {
+                    addPoint(1);
+                } else if (text.includes('team 2') || text.includes('team2') || text.includes('rot')) {
+                    addPoint(2);
                 }
             };
-
             recognition.onerror = function(event) {
-                console.error("Sprachfehler:", event.error);
                 const statusEl = document.getElementById('voice-status');
                 if (event.error === 'not-allowed') {
-                    statusEl.innerText = "❌ Mikrofon-Zugriff blockiert! Bitte im Browser erlauben.";
-                    statusEl.style.color = "#F44336";
+                    statusEl.innerText = '❌ Mikrofon-Zugriff blockiert! Bitte im Browser erlauben.';
+                    statusEl.style.color = '#ef4444';
                 } else {
-                    statusEl.innerText = "Fehler: " + event.error;
+                    statusEl.innerText = 'Fehler: ' + event.error;
                 }
             };
-
             recognition.onend = function() {
                 if (isListening) {
                     try { recognition.start(); } catch(e) {}
@@ -463,7 +1011,7 @@
             };
         } else {
             const btn = document.getElementById('voice-btn');
-            btn.innerText = "Sprachsteuerung nicht unterstützt";
+            btn.innerText = 'Sprachsteuerung nicht unterstützt';
             btn.disabled = true;
         }
     }
@@ -471,27 +1019,24 @@
     function toggleVoice() {
         if (!recognition) return;
         const statusEl = document.getElementById('voice-status');
-        
+        const btn = document.getElementById('voice-btn');
         if (isListening) {
             recognition.stop();
             isListening = false;
-            document.getElementById('voice-btn').innerText = "🎤 Sprachsteuerung starten";
-            document.getElementById('voice-btn').style.backgroundColor = "#4CAF50";
+            btn.innerText = '🎤 Sprachsteuerung starten';
+            btn.className = 'success-btn';
             statusEl.innerText = 'Befehle: "Team 1", "Team 2", "Team 1 minus", "Team 2 minus"';
-            statusEl.style.color = "#ffcc00";
+            statusEl.style.color = 'var(--yellow)';
         } else {
             try {
                 recognition.start();
                 isListening = true;
-                document.getElementById('voice-btn').innerText = "🛑 Sprachsteuerung stoppen";
-                document.getElementById('voice-btn').style.backgroundColor = "#d32f2f";
+                btn.innerText = '🛑 Sprachsteuerung stoppen';
+                btn.className = 'danger-btn';
                 statusEl.innerText = "🎧 Höre zu... Spreche z.B. 'Team 1'";
-            } catch(err) {
-                console.error("Start-Fehler:", err);
-            }
+            } catch(err) {}
         }
     }
 </script>
-
 </body>
 </html>
